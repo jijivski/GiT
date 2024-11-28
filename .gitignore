@@ -103,8 +103,8 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-data/
-data
+# data/
+# data
 pretrain_model/
 pretrain_model
 .vscode
@@ -134,3 +134,5 @@ slurm_output/*
 work_dir/*
 configs/*
 tools/*
+
+work/20241127_0*

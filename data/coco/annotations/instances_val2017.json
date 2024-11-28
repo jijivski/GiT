@@ -1,0 +1,45 @@
+{
+    "info": {
+        "description": "COCO 2017 Dataset",
+        "url": "http://cocodataset.org",
+        "version": "1.0",
+        "year": 2017,
+        "contributor": "COCO Consortium",
+        "date_created": "2017/09/01"
+    },
+    "licenses": [
+        {
+            "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/",
+            "id": 1,
+            "name": "Attribution-NonCommercial-ShareAlike License"
+        }
+    ],
+    "images": [
+        {
+            "license": 1,
+            "file_name": "ISIC_0015293.jpg",
+            "height": 4439,
+            "width": 6668,
+            "date_captured": "2017-09-01",
+            "id": 1
+        }
+    ],
+    "annotations": [
+        {
+            "segmentation": [[[2024, 2199], [2379, 1829], [2812, 1388], [3402, 1694], [3915, 2103], [4308, 2729], [3816, 3358], [2995, 3438], [2347, 3071], [1954, 2652]]],
+            "area": 1234567,
+            "iscrowd": 0,
+            "image_id": 1,
+            "bbox": [1753, 1283, 2709, 2274],
+            "category_id": 1,
+            "id": 1
+        }
+    ],
+    "categories": [
+        {
+            "supercategory": "none",
+            "id": 1,
+            "name": "type1"
+        }
+    ]
+}
