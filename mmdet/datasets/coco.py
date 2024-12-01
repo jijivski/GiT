@@ -16,7 +16,7 @@ class CocoDataset(BaseDetDataset):
 
     METAINFO = {
         'classes':
-        ('person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train',
+        ('skin_lesion', 'healthy', 'car', 'motorcycle', 'airplane', 'bus', 'train',
          'truck', 'boat', 'traffic light', 'fire hydrant', 'stop sign',
          'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep',
          'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella',
@@ -55,6 +55,9 @@ class CocoDataset(BaseDetDataset):
     COCOAPI = COCO
     # ann_id is unique in coco dataset.
     ANN_ID_UNIQUE = True
+    
+    # print('testing calling relationship')
+    # breakpoint()
 
     def load_data_list(self) -> List[dict]:
         """Load annotations from an annotation file named as ``self.ann_file``
@@ -75,6 +78,14 @@ class CocoDataset(BaseDetDataset):
         img_ids = self.coco.get_img_ids()
         data_list = []
         total_ann_ids = []
+        
+        # breakpoint()
+        # print('img_ids',img_ids)
+        # img_ids [1]
+        # 确实是load成功了
+        # self.data_list
+        # []
+
         for img_id in img_ids:
             raw_img_info = self.coco.load_imgs([img_id])[0]
             raw_img_info['img_id'] = img_id
@@ -90,6 +101,7 @@ class CocoDataset(BaseDetDataset):
                 raw_img_info
             })
             data_list.append(parsed_data_info)
+
         if self.ANN_ID_UNIQUE:
             assert len(set(total_ann_ids)) == len(
                 total_ann_ids
@@ -97,6 +109,8 @@ class CocoDataset(BaseDetDataset):
 
         del self.coco
 
+        # breakpoint()
+        print(f'raw dataset list:{len(data_list)}')
         return data_list
 
     def parse_data_info(self, raw_data_info: dict) -> Union[dict, List[dict]]:
@@ -150,6 +164,12 @@ class CocoDataset(BaseDetDataset):
                 instance['ignore_flag'] = 0
             instance['bbox'] = bbox
             instance['bbox_label'] = self.cat2label[ann['category_id']]
+
+            # breakpoint()
+            # print("ann.get('segmentation', None)",ann.get('segmentation', None))
+            
+            # (Pdb) ann
+            # {'segmentation': [[[2024, 2199], [2379, 1829], [2812, 1388], [3402, 1694], [3915, 2103], [4308, 2729], [3816, 3358], [2995, 3438], [2347, 3071], [1954, 2652]]], 'area': 1234567, 'iscrowd': 0, 'image_id': 1, 'bbox': [1753, 1283, 2709, 2274], 'category_id': 1, 'id': 1}
 
             if ann.get('segmentation', None):
                 instance['mask'] = ann['segmentation']

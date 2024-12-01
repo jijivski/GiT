@@ -485,6 +485,7 @@ class PackInputs(BaseTransform):
         if 'gt_score' in results:
             data_sample.set_gt_score(results['gt_score'])
         if 'mask' in results:
+            # breakpoint()
             data_sample.set_mask(results['mask'])
 
         # Set custom algorithm keys

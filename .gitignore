@@ -103,8 +103,8 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-# data/
-# data
+data/
+data
 pretrain_model/
 pretrain_model
 .vscode
@@ -136,3 +136,5 @@ configs/*
 tools/*
 
 work/20241127_0*
+2024112*
+last_checkpoint

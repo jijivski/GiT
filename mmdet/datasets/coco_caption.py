@@ -25,6 +25,10 @@ class COCOCaption(BaseDataset):
 
     def load_data_list(self) -> List[dict]:
         """Load data list."""
+
+        # print('testing calling relationship')
+        # breakpoint()
+
         img_prefix = self.data_prefix['img_path']
         annotations = mmengine.load(self.ann_file)
         file_backend = get_file_backend(img_prefix)

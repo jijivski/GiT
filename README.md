@@ -287,3 +287,22 @@ Please consider citing our work as follows if it is helpful.
 <a href="https://github.com/Haiyang-W/GiT/graphs/contributors">
   <img src="https://avatars.githubusercontent.com/u/54112784?v=4" />
 </a> -->
+
+
+git remote -v
+
+pip install yapf==0.40.1
+git config user.name "jijivski"
+git config user.email  "jijivski@outlook.com"
+
+
+#### run
+cd /224045019/6051_final_project/GiT/
+bash tools/dist_train.sh configs/GiT/single_detection_base.py  2 --work-dir .
+
+
+#### data preparation
+python /224045019/6051_final_project/GiT/data/coco/make_coco_ISIC2018.py
+cp /sds_wangby/models/czy_data/multi_med_flan/ISIC2018/ISIC2018_Task1-2_Training_Input/*.jpg train2017/
+cp /sds_wangby/models/czy_data/multi_med_flan/ISIC2018/ISIC2018_Task1-2_Test_Input/*.jpg val2017/
+head /sds_wangby/models/czy_data/multi_med_flan/ISIC2017/ISIC-2017-Seg-train.json
