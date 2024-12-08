@@ -289,8 +289,8 @@ Please consider citing our work as follows if it is helpful.
 </a> -->
 
 
+#### config
 git remote -v
-
 pip install yapf==0.40.1
 git config user.name "jijivski"
 git config user.email  "jijivski@outlook.com"
@@ -299,6 +299,13 @@ git config user.email  "jijivski@outlook.com"
 #### run
 cd /224045019/6051_final_project/GiT/
 bash tools/dist_train.sh configs/GiT/single_detection_base.py  2 --work-dir .
+cd /224045019/6051_final_project/GiT/
+#ckpt_file=exp112916_iter_5000.pth
+ckpt_file=exp112916_iter_2000.pth
+GPU_NUM=2
+work_dir=.test
+CUDA_VISIBLE_DEVICES=0 bash tools/dist_test.sh configs/GiT/single_detection_base.py ${ckpt_file} ${GPU_NUM} --work-dir ${work_dir}
+
 
 
 #### data preparation
@@ -306,3 +313,43 @@ python /224045019/6051_final_project/GiT/data/coco/make_coco_ISIC2018.py
 cp /sds_wangby/models/czy_data/multi_med_flan/ISIC2018/ISIC2018_Task1-2_Training_Input/*.jpg train2017/
 cp /sds_wangby/models/czy_data/multi_med_flan/ISIC2018/ISIC2018_Task1-2_Test_Input/*.jpg val2017/
 head /sds_wangby/models/czy_data/multi_med_flan/ISIC2017/ISIC-2017-Seg-train.json
+
+
+#### sota comparison
+https://paperswithcode.com/paper/training-on-polar-image-transformations
+https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9551998
+https://github.com/marinbenc/medical-polar-training
+
+by searching checkpoint in the github, found a release page, download the zip file and unzip it.
+cd ..
+wget https://github.com/marinbenc/medical-polar-training/releases/download/v1.0/lesion_models.zip
+unzip lesion_models.zip
+
+then 
+
+
+Training
+python train.py -h: used to train the polar and cartesian network
+python train_hourglass.py -h: used to train the centerpoint predictor
+Testing
+python test.py -h: test the polar and cartesian networks
+python test_center_from_model.py -h: test the polar network with polar origins from the cartesian network
+python test_centerpoint_model.py -h: test the polar network with polar origins from the centerpoint predictor
+
+Lesion 病变
+Dataset obtained from: https://challenge2018.isic-archive.com/task1/ Download link: https://challenge.isic-archive.com/data#2018
+
+Download the validation and training input and GT for Task 1 and extract the folders as follows:
+
+datasets/
+  lesion/
+    ISIC2018_Task1-2_Validation_Input/
+    ISIC2018_Task1-2_Training_Input/
+    ISIC2018_Task1_Validation_GroundTruth/
+    ISIC2018_Task1_Training_GroundTruth/
+Then, navigate to datasets/lesion and run python make_dataset.py.
+
+
+
+save=data_sample['pred_instances']['masks'].cpu().numpy()
+np.save('masks.npy', save)

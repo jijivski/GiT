@@ -128,13 +128,13 @@ work_dirs/
 mmdet.egg-info/
 
 debug/
-configs/
 tools/
 slurm_output/*
 work_dir/*
-configs/*
+# configs/*
+# !configs/GiT/*/*.py
 tools/*
 
-work/20241127_0*
+work/
 2024112*
 last_checkpoint
