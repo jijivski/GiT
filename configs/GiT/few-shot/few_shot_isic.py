@@ -3,6 +3,8 @@ _base_ = ['../../_base_/seg_default_runtime.py',
 ]
 load_from = './universal_base.pth'
 
+support_num=100
+
 global_bin = _base_.global_bin
 base_img_size = _base_.base_img_size
 backend_args = None
@@ -69,12 +71,12 @@ train_dataloader = dict(
                 data_prefix=dict(img='train2017/'),
                 filter_cfg=dict(filter_empty_gt=True, min_size=10),
                 pipeline=isic_det_train_pipeline,
-                support_num=100*1,
+                support_num=support_num*1,
                 return_classes=True,
                 backend_args=backend_args)
     )
 
-max_iters=1000
+max_iters=101
 train_cfg = dict(
     type='IterBasedTrainLoop', max_iters=max_iters, val_interval=20)
 test_cfg = dict(type='TestLoop')
@@ -119,7 +121,7 @@ default_hooks = dict(
     timer=dict(type='IterTimerHook'),
     logger=dict(type='LoggerHook', interval=1, log_metric_by_epoch=False),
     param_scheduler=dict(type='ParamSchedulerHook'),
-    checkpoint=dict(type='CheckpointHook', by_epoch=False, interval=100, max_keep_ckpts=5),
+    checkpoint=dict(type='CheckpointHook', by_epoch=False, interval=10, max_keep_ckpts=10),
     sampler_seed=dict(type='DistSamplerSeedHook'),
     visualization=dict(type='DetVisualizationHook',draw=False,interval=50,show=False))
 
