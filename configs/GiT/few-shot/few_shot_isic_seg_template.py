@@ -1,5 +1,5 @@
-load_from = 'work/det_few_shot_isic_support_1000_iter_20.pth'
-support_num=5
+load_from = "/224045019/6051_final_project/GiT/work/det_few_shot_isic_support_500_iter_50.pth"
+support_num=500
 max_iters=100
 # load_from = './work/iter_5.pth'
 

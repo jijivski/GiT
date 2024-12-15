@@ -34,6 +34,18 @@ def extract_params_from_log(log_path):
                     }
     return None
 
+def extract_support_num(log_path):
+    # 从日志文件中提取参数
+    with open(log_path, 'r') as f:
+        content = f.readlines()
+    for line in content:
+        # 提取support_num
+        if 'support_num = ' in line:
+            support_num = int(re.findall(r'support_num = (\d+)', line)[0])
+            return support_num
+    return None
+
+
 def extract_metrics_from_content(file_path):
     # 从文件内容中提取指标数据
     with open(file_path, 'r') as f:
@@ -57,8 +69,10 @@ def extract_metrics_from_content(file_path):
     return None
 
 # 获取work目录下的所有日志文件
-base_dir = 'work'
-target_time = '20241208_092137'
+base_dir = '/224045019/6051_final_project/GiT/work'
+# target_time = '20241208_092137' # kmeans 
+# target_time = '20241213_072254'# raw detail
+target_time  = '20241213_142519'
 results = []
 
 _cnt = 0
@@ -75,6 +89,34 @@ for dirname in os.listdir(base_dir):
                 for metrics in metrics_list:
                     result = {**params, **metrics}
                     results.append(result)
+
+# 从指定文件夹提取基准参数
+base_log_path = '/224045019/6051_final_project/GiT/seg_train_logs/from_raw_all_detail/'
+for dirname in os.listdir(base_log_path):
+    log_path = os.path.join(base_log_path, f'{dirname}')
+    if os.path.exists(log_path):
+        base_params = extract_params_from_log(log_path)
+        if not base_params:
+            support_num=extract_support_num(log_path)
+            
+            if support_num:
+                base_params={'support_num':support_num,
+                            'ckpt_support_num': 0,
+                            'ckpt_iter_num': 0
+                            }
+                metrics_list = extract_metrics_from_content(log_path)
+                _cnt+=1
+                print(f'{_cnt} / {base_params}')
+                if base_params and metrics_list:
+                    for metrics in metrics_list:
+                        result = {**base_params, **metrics}
+                        results.append(result)
+            else:
+                #even can not find support num
+                print(f'fail to find anything about training para in {log_path}')
+                continue
+                
+
 print(f'total {_cnt} logs')
 # 创建数据框
 df = pd.DataFrame(results)
@@ -245,15 +287,7 @@ def plot_metrics_by_seg_support(df, ckpt_support, ckpt_iter,step=20):
     plt.savefig(f'figures/seg_support_comparison_ckpt_{ckpt_support}_{ckpt_iter}_step_{step}.png')
     plt.show()
 
-# 绘制图表
-# 例如，观察ckpt_support=500, ckpt_iter=40时的变化
-# breakpoint()
-plot_metrics_by_step(df, 500, 40)
 
-# 观察step=0时不同ckpt_support的效果
-plot_metrics_by_ckpt_support(df, 90, 40)
-
-plot_metrics_by_ckpt(df)
 
 # 调用新函数的示例
 # for step in [30,60,90]:
@@ -312,10 +346,9 @@ def draw_heatmap(df, fixed_ckpt_iter, fixed_step):
         print(f"No data found for ckpt_iter={fixed_ckpt_iter} and step={fixed_step}")
         return
     # 创建一个新的图形，指定大小
-    plt.figure(figsize=(15, 6))
+    plt.figure(figsize=(15,3))
     
     metrics = ['IoU', 'Dice']
-    
     for idx, metric in enumerate(metrics, 1):
         # 创建子图
         ax = plt.subplot(1, 2, idx)
@@ -342,28 +375,121 @@ def draw_heatmap(df, fixed_ckpt_iter, fixed_step):
                    annot=True, 
                    fmt='.2f',
                    cmap='Blues',
+                   vmin=80,  
+                   vmax=95,  
                    ax=ax)
         
         ax.set_title(f'Heatmap of {metric}')
         ax.set_xlabel('Checkpoint Support Number')
         ax.set_ylabel('Segmentation Support Number')
-    
     plt.tight_layout()
-    plt.savefig(f'figures/heatmaps_large/support_heatmap_metrics_ckptiter{fixed_ckpt_iter}_step{fixed_step}.png')
+    plt.savefig(f'figures/heatmaps/support_heatmap_metrics_ckptiter{fixed_ckpt_iter}_step{fixed_step}.png')
     plt.clf()  # 关闭图形以释放内存
 
 
-fixed_ckpt_iter = 50
-fixed_step = 40
-# for fixed_step in [10,20,30,40,50]:
+
+
+
+def draw_heatmap_average(df, use='mean'): 
+    # 计算平均值版本
+    if use == 'mean':
+        # df_filtered_mean = df[(df['ckpt_iter_num'] == fixed_ckpt_iter) & (df['step'] == fixed_step)]
+        df_filtered_mean = df.groupby(['support_num', 'ckpt_support_num']).agg({
+            'IoU': 'mean',
+            'Acc': 'mean', 
+            'Dice': 'mean'
+        }).reset_index()
+        df_filtered=df_filtered_mean
+
+    elif use == 'median':
+        # df_filtered_median = df[(df['ckpt_iter_num'] == fixed_ckpt_iter) & (df['step'] == fixed_step)]
+        df_filtered_median = df.groupby(['support_num', 'ckpt_support_num']).agg({
+            'IoU': 'median',
+            'Acc': 'median',
+            'Dice': 'median' 
+        }).reset_index()
+        df_filtered=df_filtered_median
+
+    elif use == 'max':
+        # df_filtered_median = df[(df['ckpt_iter_num'] == fixed_ckpt_iter) & (df['step'] == fixed_step)]
+        df_filtered_median = df.groupby(['support_num', 'ckpt_support_num']).agg({
+            'IoU': 'max',
+            'Acc': 'max',
+            'Dice': 'max' 
+        }).reset_index()
+        df_filtered=df_filtered_median
+
+
+    # if df_filtered_mean.empty or df_filtered_median.empty:
+    #     print(f"No data found for ckpt_iter={fixed_ckpt_iter} and step={fixed_step}")
+    #     return
+
+    # 创建两个图形,一个用于平均值,一个用于中位数
+    plt.figure(figsize=(12,3))
+    # plt.figure(figsize=(15, 12))
+    
+    metrics = ['IoU', 'Dice']
+    for idx, metric in enumerate(metrics, 1):
+        # 创建子图
+        ax = plt.subplot(1, 2, idx)
+        
+        # 获取唯一的support_num和ckpt_support_num值
+        support_nums = sorted(df_filtered['support_num'].unique())
+        ckpt_supports = sorted(df_filtered['ckpt_support_num'].unique())
+        
+        # 创建空矩阵存储性能值
+        heatmap_data = np.zeros((len(support_nums), len(ckpt_supports)))
+        
+        # 填充矩阵数据
+        for i, support in enumerate(support_nums):
+            for j, ckpt_support in enumerate(ckpt_supports):
+                values = df_filtered[(df_filtered['support_num'] == support) & 
+                                   (df_filtered['ckpt_support_num'] == ckpt_support)][metric]
+                if len(values) > 0:
+                    heatmap_data[i,j] = values.iloc[0]
+        
+        # 绘制热力图
+        sns.heatmap(heatmap_data, 
+                   xticklabels=ckpt_supports,
+                   yticklabels=support_nums,
+                   annot=True, 
+                   fmt='.2f',
+                   cmap='Blues',
+                #    vmin=80,  
+                #    vmax=95,  
+                   ax=ax)
+        
+        ax.set_title(f'Heatmap of {metric}')
+        ax.set_xlabel('Checkpoint Support Number')
+        ax.set_ylabel('Segmentation Support Number')
+    plt.tight_layout()
+    # plt.savefig(f'figures/support_heatmap_metrics_{"mean" if use else "median"}.png')
+    plt.savefig(f'figures/support_heatmap_metrics_{use}.png')
+    
+    plt.clf()  # 关闭图形以释放内存
+
+
+# # 绘制图表
+# # 例如，观察ckpt_support=500, ckpt_iter=40时的变化
+# # breakpoint()
+# plot_metrics_by_step(df, 500, 40)
+
+# # 观察step=0时不同ckpt_support的效果
+# plot_metrics_by_ckpt_support(df, 90, 40)
+
+# plot_metrics_by_ckpt(df)
+
+# fixed_ckpt_iter = 50
+# fixed_step = 10
+# for fixed_step in [10,20,30,40,50,60,70,80,90,100]:
 #     for fixed_ckpt_iter in [20,30,40,50,]:
 #         print(f'fixed_step:{fixed_step},fixed_ckpt_iter:{fixed_ckpt_iter}')
 #         draw_heatmap(df,fixed_ckpt_iter,fixed_step)
 
-# for fixed_step in [60,70,80,90]:
-#     for fixed_ckpt_iter in [60,70,80,90,100]:
-#         print(f'fixed_step:{fixed_step},fixed_ckpt_iter:{fixed_ckpt_iter}')
-#         draw_heatmap(df,fixed_ckpt_iter,fixed_step)
+
+# draw_heatmap_average(df,use='mean')
+draw_heatmap_average(df,use='max')
+
 
 '''
 cd /224045019/6051_final_project/GiT/

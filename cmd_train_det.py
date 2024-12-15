@@ -6,7 +6,7 @@ gpu_num = 2
 work_dir = r'/224045019/6051_final_project/GiT/work'
 # support_num_list = [10, 50, 100, 200, 500, 1000]
 
-support_num_list = [100, 200, 500, 1000]
+support_num_list = [100, 200, 500, 1000, 2000]
 for support_num in support_num_list:
 
     # 为每个实验创建独立的工作目录

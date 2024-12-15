@@ -138,3 +138,6 @@ tools/*
 work/
 2024112*
 last_checkpoint
+figures/
+seg_train_logs/
+figures_kmeans/
